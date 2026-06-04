@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Sales Report — Space 519</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px; color: #303030; background: #f1f1f1;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #005bd3; text-decoration: none; cursor: pointer; }
+a:hover { text-decoration: underline; }
+input, select, textarea, button { font-family: inherit; font-size: 13px; }
+button { cursor: pointer; }
+
+/* ───── TOP BAR ───── */
+.admin-topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 56px; background: #1a1a1a; display: flex; align-items: center;
+  padding: 0 12px; gap: 12px;
+}
+.topbar-logo { display: flex; align-items: center; gap: 10px; padding: 0 4px; flex-shrink: 0; }
+.topbar-logo svg { width: 28px; height: 28px; }
+.topbar-search {
+  flex: 1; max-width: 580px; margin: 0 auto; background: #303030;
+  border: 1px solid #505050; border-radius: 8px; display: flex; align-items: center;
+  padding: 0 12px; height: 36px; color: #b5b5b5; font-size: 13px; cursor: text;
+}
+.topbar-search:hover { border-color: #666; }
+.topbar-search svg { width: 16px; height: 16px; margin-right: 8px; flex-shrink: 0; opacity: 0.6; }
+.topbar-search span { opacity: 0.7; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
+.topbar-icon-btn {
+  width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent;
+  color: #b5b5b5; display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+}
+.topbar-icon-btn:hover { background: #303030; }
+.topbar-icon-btn svg { width: 20px; height: 20px; }
+.topbar-store-btn {
+  height: 36px; border-radius: 8px; border: none; background: #303030; color: #e3e3e3;
+  padding: 0 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; transition: background 0.15s;
+}
+.topbar-store-btn:hover { background: #404040; }
+.store-avatar {
+  width: 26px; height: 26px; border-radius: 7px; background: #4a4a4a; color: #fff;
+  font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; letter-spacing: 0.3px;
+}
+
+/* ───── SIDEBAR ───── */
+.admin-sidebar {
+  position: fixed; top: 56px; left: 0; bottom: 0; z-index: 90; width: 240px;
+  background: #f7f7f7; border-right: 1px solid #e3e3e3; overflow-y: auto; padding: 12px 8px;
+}
+.sidebar-nav { list-style: none; }
+.sidebar-nav li { margin-bottom: 1px; }
+.sidebar-nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px;
+  font-size: 13px; color: #303030; font-weight: 500; cursor: pointer; transition: background 0.12s; text-decoration: none; position: relative;
+}
+.sidebar-nav-item:hover { background: #ebebeb; text-decoration: none; }
+.sidebar-nav-item.active { background: #e3e3e3; font-weight: 600; }
+.sidebar-nav-item.dimmed { color: #919191; font-weight: 400; }
+.sidebar-nav-item svg { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.75; }
+.sidebar-nav-item .nav-badge { background: #e4edff; color: #1f5199; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; margin-left: auto; }
+.sidebar-section-label { font-size: 11px; font-weight: 600; color: #919191; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 10px 6px; margin-top: 4px; }
+.sidebar-sub-items { list-style: none; padding-left: 0; }
+.sidebar-sub-item { display: block; padding: 6px 10px 6px 40px; border-radius: 8px; font-size: 13px; color: #616161; cursor: pointer; transition: background 0.12s; text-decoration: none; }
+.sidebar-sub-item:hover { background: #ebebeb; color: #303030; text-decoration: none; }
+.sidebar-sub-item.active { background: #e3e3e3; color: #303030; font-weight: 600; }
+
+/* ───── MAIN ───── */
+.admin-main { position: fixed; top: 56px; left: 240px; right: 0; bottom: 0; background: #f1f1f1; overflow-y: auto; }
+.admin-content { max-width: 1000px; margin: 0 auto; padding: 0 24px 60px; }
+.admin-main::-webkit-scrollbar { width: 8px; }
+.admin-main::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.admin-sidebar::-webkit-scrollbar { width: 6px; }
+.admin-sidebar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+/* ───── APP HEADER ───── */
+.app-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 16px; border-bottom: 1px solid #e3e3e3; margin-bottom: 20px; }
+.app-header-title { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+.app-header-sub { font-size: 13px; color: #919191; margin-top: 2px; }
+
+/* ───── ACCOUNT POPOVER ───── */
+.account-popover-wrap { position: relative; }
+.account-trigger { display: flex; align-items: center; gap: 8px; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 13px; color: #303030; transition: background 0.12s, border-color 0.12s; }
+.account-trigger:hover { background: #f1f1f1; border-color: #e3e3e3; }
+.account-trigger .chev { font-size: 9px; color: #919191; margin-left: 2px; }
+.account-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e3e3e3; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #616161; }
+.account-popover { position: absolute; top: calc(100% + 6px); right: 0; z-index: 120; width: 240px; background: #fff; border: 1px solid #e1e3e5; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 6px; }
+.account-popover-header { display: flex; align-items: center; gap: 10px; padding: 10px 10px 12px; }
+.account-popover-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.account-popover-email { font-size: 12px; color: #6d7175; margin-top: 1px; }
+.account-popover-divider { border: none; border-top: 1px solid #e3e3e3; margin: 4px 0; }
+.account-popover-action { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: #303030; cursor: pointer; transition: background 0.12s; }
+.account-popover-action:hover { background: #f1f1f1; }
+
+/* ───── CARDS ───── */
+.card { background: #fff; border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.card-subtitle { font-size: 12px; color: #919191; margin-top: 2px; }
+.card-foot { font-size: 12px; color: #919191; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f1f1; }
+
+/* ───── BUTTONS ───── */
+.btn-primary { background: #303030; color: #fff; border: none; border-radius: 8px; height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+.btn-primary:hover { background: #1a1a1a; }
+.btn-primary:disabled { background: #b5b5b5; cursor: not-allowed; }
+.btn-secondary { background: #fff; color: #303030; border: 1px solid #c9cccf; border-radius: 8px; height: 36px; padding: 0 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+.btn-secondary:hover { background: #f7f7f7; }
+.btn-secondary:disabled { color: #b5b5b5; border-color: #e3e3e3; cursor: not-allowed; background: #fff; }
+.btn-sm { height: 30px; padding: 0 12px; font-size: 12px; }
+.btn-icon-only { width: 30px; padding: 0; justify-content: center; }
+.btn-row { display: flex; align-items: center; gap: 10px; }
+
+/* ───── FORMS ───── */
+.form-input, .form-select { border: 1px solid #d4d4d4; border-radius: 8px; padding: 7px 10px; font-size: 13px; width: 100%; transition: border-color 0.15s, box-shadow 0.15s; background: #fff; color: #303030; }
+.form-input:focus, .form-select:focus { outline: none; border-color: #005bd3; box-shadow: 0 0 0 2px rgba(0,91,211,0.15); }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: #303030; margin-bottom: 4px; }
+.form-row { display: flex; gap: 12px; }
+.form-row > .form-group { flex: 1; }
+.input-prefix-wrap { position: relative; display: flex; align-items: center; }
+.input-prefix-wrap .prefix { position: absolute; left: 10px; color: #919191; font-size: 13px; pointer-events: none; }
+.input-prefix-wrap .form-input { padding-left: 22px; }
+
+/* ───── BADGES ───── */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+.badge-up { background: #e4f5e9; color: #1f7a3f; }
+.badge-up::before { content: ''; }
+.badge-down { background: #fde8e8; color: #c0341d; }
+.badge-blue { background: #e4edff; color: #1f5199; }
+.badge-subdued { background: #ebebeb; color: #6d7175; text-transform: uppercase; }
+.badge-sent { background: #e4f5e9; color: #1f7a3f; }
+
+/* ───── POLARIS BANNER ───── */
+.p-banner { border-radius: 8px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.4; margin-bottom: 16px; }
+.p-banner-icon { flex-shrink: 0; font-size: 15px; line-height: 1.2; }
+.p-banner-body { flex: 1; }
+.p-banner-title { font-weight: 600; margin-bottom: 2px; }
+.p-banner-info { background: #eff5ff; color: #00527c; }
+.p-banner-success { background: #e7f6ed; color: #1f7a3f; }
+.p-banner-warning { background: #fdf4d6; color: #8a6116; }
+.p-banner-warning a { color: #6b4a10; text-decoration: underline; font-weight: 600; }
+
+/* ───── TOASTS ───── */
+.toast-container { position: sticky; top: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+.toast { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; animation: slideDown 0.25s ease-out; pointer-events: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.12); margin-top: 8px; }
+.toast-success { background: #e4f5e9; border: 1px solid #a3d9b1; color: #1f7a3f; }
+.toast-info { background: #eef6ff; border: 1px solid #bbd4f0; color: #1f5199; }
+@keyframes slideDown { from { transform: translateY(-6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ───── DATA GRID ───── */
+.data-grid { width: 100%; border-collapse: collapse; }
+.data-grid thead th { background: #fafafa; text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #616161; border-bottom: 1px solid #e3e3e3; white-space: nowrap; }
+.data-grid tbody td { padding: 11px 12px; border-bottom: 1px solid #f1f1f1; font-size: 13px; vertical-align: middle; }
+.data-grid tbody tr:last-child td { border-bottom: none; }
+.data-grid tbody tr:hover { background: #fafafa; }
+.data-grid .num { font-variant-numeric: tabular-nums; text-align: right; }
+.data-grid .actions { text-align: right; }
+.grid-wrap { margin: 0 -24px -4px; }
+.grid-wrap .data-grid thead th:first-child,
+.grid-wrap .data-grid tbody td:first-child { padding-left: 24px; }
+.grid-wrap .data-grid thead th:last-child,
+.grid-wrap .data-grid tbody td:last-child { padding-right: 24px; }
+
+.rep-cell { display: flex; align-items: center; gap: 10px; }
+.rep-avatar { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #e3e3e3; font-size: 11px; font-weight: 700; color: #616161; flex-shrink: 0; }
+.rep-name { font-weight: 500; color: #303030; }
+
+/* ───── KPI / SUMMARY ───── */
+.view-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.view-heading-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+.view-heading-sub { font-size: 13px; color: #919191; margin-top: 3px; }
+.week-nav { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #c9cccf; border-radius: 8px; padding: 3px 4px; }
+.week-nav button { width: 28px; height: 28px; border: none; background: transparent; border-radius: 6px; color: #303030; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+.week-nav button:hover:not(:disabled) { background: #f1f1f1; }
+.week-nav button:disabled { color: #c9cccf; cursor: not-allowed; }
+.week-nav .week-label { font-size: 13px; font-weight: 600; padding: 0 6px; white-space: nowrap; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.summary-stat { padding: 4px 0; }
+.summary-stat .v { font-size: 22px; font-weight: 700; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+.summary-stat .l { font-size: 12px; color: #919191; margin-top: 2px; }
+
+.loc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.loc-net { font-size: 24px; font-weight: 700; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+.loc-net-label { font-size: 12px; color: #919191; margin-top: 1px; margin-bottom: 14px; }
+.loc-substats { display: flex; gap: 22px; }
+.loc-substats .s .v { font-size: 14px; font-weight: 600; color: #303030; font-variant-numeric: tabular-nums; }
+.loc-substats .s .l { font-size: 11px; color: #919191; margin-top: 1px; }
+
+/* ───── GOALS ───── */
+.goal-loc-label { font-size: 12px; font-weight: 600; color: #919191; text-transform: uppercase; letter-spacing: 0.4px; margin: 18px 0 8px; }
+.goal-loc-label:first-child { margin-top: 0; }
+.goal-row { display: flex; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid #f1f1f1; }
+.goal-row:last-child { border-bottom: none; }
+.goal-rep { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.goal-prev { font-size: 12px; color: #919191; white-space: nowrap; }
+.goal-input-wrap { width: 130px; flex-shrink: 0; }
+
+/* ───── RECIPIENTS ───── */
+.recipient-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f1f1f1; }
+.recipient-row:last-child { border-bottom: none; }
+.recipient-info { flex: 1; min-width: 0; }
+.recipient-name { font-size: 13px; font-weight: 600; color: #303030; }
+.recipient-email { font-size: 12px; color: #616161; margin-top: 1px; }
+.recipient-remove { background: none; border: none; color: #919191; font-size: 18px; line-height: 1; padding: 4px 6px; cursor: pointer; transition: color 0.12s; }
+.recipient-remove:hover { color: #c0341d; }
+
+/* ───── TOGGLE ───── */
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f1f1; }
+.setting-row:last-child { border-bottom: none; }
+.setting-text .t { font-size: 13px; font-weight: 600; color: #303030; }
+.setting-text .d { font-size: 12px; color: #919191; margin-top: 2px; max-width: 480px; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider { position: absolute; inset: 0; background: #c9cccf; border-radius: 10px; transition: 0.15s; cursor: pointer; }
+.toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.toggle input:checked + .toggle-slider { background: #303030; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+.toggle input:disabled + .toggle-slider { background: #e3e3e3; cursor: not-allowed; }
+
+/* ───── MODAL ───── */
+.modal-backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5); display: flex; align-items: flex-start; justify-content: center; padding: 80px 20px; overflow-y: auto; }
+.modal-box { width: 100%; max-width: 460px; background: #fff; border-radius: 8px; box-shadow: 0 6px 28px rgba(0,0,0,0.2); animation: modalIn 0.18s ease-out; }
+@keyframes modalIn { from { transform: translateY(-8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e1e3e5; }
+.modal-title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.modal-close { background: none; border: none; font-size: 20px; line-height: 1; color: #6d7175; cursor: pointer; padding: 0 4px; }
+.modal-close:hover { color: #303030; }
+.modal-body { padding: 20px; }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #e1e3e5; }
+.form-err { font-size: 12px; color: #c0341d; margin-top: 6px; }
+
+/* ───── UTIL ───── */
+.view-hidden { display: none !important; }
+.spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 880px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .loc-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="admin-topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 4.662 2.28 8.793 5.784 11.337L14 32l8.216-6.663C25.72 22.793 28 18.662 28 14 28 6.268 21.732 0 14 0zm0 20a6 6 0 110-12 6 6 0 010 12z" fill="#95BF47"/>
+    </svg>
+  </div>
+  <div class="topbar-search">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"/><line x1="14" y1="14" x2="18" y2="18"/></svg>
+    <span>Search</span>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-icon-btn" title="Notifications">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2a6 6 0 016 6c0 2.5-1 4.5-2 6l1 4H5l1-4c-1-1.5-2-3.5-2-6a6 6 0 016-6z"/><path d="M8 18a2 2 0 004 0"/></svg>
+    </button>
+    <button class="topbar-store-btn">
+      <div class="store-avatar">519</div>
+      <span>Space 519</span>
+    </button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+  <ul class="sidebar-nav">
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L2 8v10h6v-6h4v6h6V8L10 2z"/></svg>Home</a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h14a1 1 0 011 1v1H2V4a1 1 0 011-1zm-1 4h16v9a2 2 0 01-2 2H4a2 2 0 01-2-2V7z"/></svg>Orders <span class="nav-badge">18</span></a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v1H3v12h14V5h-3V4a1 1 0 00-1-1H7zm0 2h6v1H7V5z"/></svg>Products</a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 0114 0H3z"/></svg>Customers</a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor" opacity="0.5"><path d="M2 4h16v2H2V4zm0 5h10v2H2V9zm0 5h14v2H2v-2z"/></svg>Analytics</a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor" opacity="0.5"><path d="M10 2l2.4 4.8L18 8l-4 3.9.9 5.6L10 14.7l-4.9 2.8.9-5.6L2 8l5.6-1.2L10 2z"/></svg>Marketing</a></li>
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor" opacity="0.5"><path d="M4 4h12v2H4V4zm2 4h8v2H6V8zm1 4h6v2H7v-2z"/></svg>Discounts</a></li>
+  </ul>
+  <div class="sidebar-section-label">Sales channels</div>
+  <ul class="sidebar-nav">
+    <li><a class="sidebar-nav-item dimmed" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor" opacity="0.5"><path d="M3 2h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm1 2v12h12V4H4z"/></svg>Point of Sale</a></li>
+  </ul>
+  <div class="sidebar-section-label">Apps</div>
+  <ul class="sidebar-nav">
+    <li><a class="sidebar-nav-item active" href="#" onclick="return false;"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h6v6H3V3zm8 0h6v6h-6V3zM3 11h6v6H3v-6zm8 0h6v6h-6v-6z"/></svg>Weekly Sales Report</a></li>
+  </ul>
+  <ul class="sidebar-sub-items">
+    <li><a class="sidebar-sub-item active" id="nav-report" onclick="window.switchView('report')">Current Report</a></li>
+    <li><a class="sidebar-sub-item" id="nav-goals" onclick="window.switchView('goals')">Sales Goals</a></li>
+    <li><a class="sidebar-sub-item" id="nav-recipients" onclick="window.switchView('recipients')">Email Recipients</a></li>
+    <li><a class="sidebar-sub-item" id="nav-history" onclick="window.switchView('history')">Report History</a></li>
+    <li><a class="sidebar-sub-item" id="nav-settings" onclick="window.switchView('settings')">Settings</a></li>
+  </ul>
+</aside>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="toast-container" id="toast-container"></div>
+  <div class="admin-content">
+
+    <div class="app-header">
+      <div>
+        <div class="app-header-title">Weekly Sales Report</div>
+        <div class="app-header-sub" id="app-header-sub">Space 519 · 2 locations · Automated POS sales reporting</div>
+      </div>
+      <div class="account-popover-wrap">
+        <button class="account-trigger" onclick="window.toggleAccountPopover(event)">
+          <span class="account-avatar">SB</span>
+          <span>Sarah Burton</span>
+          <span class="chev">▼</span>
+        </button>
+        <div class="account-popover view-hidden" id="account-popover">
+          <div class="account-popover-header">
+            <span class="account-avatar">SB</span>
+            <div>
+              <div class="account-popover-name">Sarah Burton</div>
+              <div class="account-popover-email">sarah@space519.com</div>
+            </div>
+          </div>
+          <hr class="account-popover-divider">
+          <div class="account-popover-action" onclick="window.showToast('Help center opening…','info'); window.closeAccountPopover();">Help &amp; documentation</div>
+          <div class="account-popover-action" onclick="window.switchView('settings'); window.closeAccountPopover();">App settings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ VIEW: CURRENT REPORT ════════ -->
+    <div id="view-report">
+      <div class="view-heading-row">
+        <div>
+          <div class="view-heading-title">Current report</div>
+          <div class="view-heading-sub" id="report-last-generated">Last generated Mon Jun 2, 2026 · 7:02 AM</div>
+        </div>
+        <div class="btn-row">
+          <div class="week-nav">
+            <button title="Previous week" onclick="window.showToast('Showing the most recent completed week in this demo','info')">‹</button>
+            <span class="week-label">May 26 – Jun 1, 2026</span>
+            <button title="Next week" disabled>›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-bottom:16px">
+        <button class="btn-secondary" id="rerun-btn" onclick="window.rerunReport()">Re-run report</button>
+        <button class="btn-primary" onclick="window.emailReport()">Email to team</button>
+        <span class="view-heading-sub" id="report-last-sent" style="margin-top:0">Last sent Mon Jun 2, 7:02 AM to 6 recipients</span>
+      </div>
+
+      <div id="report-rerun-banner" class="p-banner p-banner-warning view-hidden">
+        <span class="p-banner-icon">⚠️</span>
+        <div class="p-banner-body">
+          <div class="p-banner-title">Targets were updated since this report was generated</div>
+          <div>Re-run the report to refresh the staff performance numbers before sending. <a onclick="window.rerunReport()">Re-run now</a></div>
+        </div>
+      </div>
+
+      <!-- Combined summary -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Net sales — all locations</div>
+            <div class="card-subtitle">Monday May 26 to Sunday Jun 1, 2026</div>
+          </div>
+        </div>
+        <div class="summary-grid" id="summary-grid"></div>
+      </div>
+
+      <!-- Per location -->
+      <div class="loc-grid" id="loc-grid"></div>
+
+      <!-- Staff performance -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Staff performance</div>
+            <div class="card-subtitle">Net sales attributed to each associate vs. their weekly target</div>
+          </div>
+          <a onclick="window.switchView('goals')">Edit targets</a>
+        </div>
+        <div class="grid-wrap">
+          <table class="data-grid">
+            <thead><tr>
+              <th>Associate</th><th>Location</th>
+              <th class="num">Weekly target</th><th class="num">Net sales</th><th class="num">vs. target</th>
+            </tr></thead>
+            <tbody id="staff-tbody"></tbody>
+          </table>
+        </div>
+        <div class="card-foot" id="staff-foot"></div>
+      </div>
+
+      <!-- Top customers -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Top customers this week</div>
+            <div class="card-subtitle">Ranked by net spend across both locations</div>
+          </div>
+        </div>
+        <div class="grid-wrap">
+          <table class="data-grid">
+            <thead><tr><th>Customer</th><th class="num">Orders</th><th class="num">Net spend</th></tr></thead>
+            <tbody id="customers-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- YoY (disabled / future) -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Year-over-year comparison</div>
+            <div class="card-subtitle">Compare each week against the same week last year</div>
+          </div>
+          <label class="toggle" title="Not enough history yet">
+            <input type="checkbox" disabled>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="p-banner p-banner-info" style="margin-bottom:0">
+          <span class="p-banner-icon">ℹ️</span>
+          <div class="p-banner-body">Available once 12 months of Shopify history is collected. Space 519 has been on Shopify POS since Apr 1, 2026, so this turns on automatically in April 2027.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ VIEW: SALES GOALS ════════ -->
+    <div id="view-goals" class="view-hidden">
+      <div class="view-heading-row">
+        <div>
+          <div class="view-heading-title">Sales goals</div>
+          <div class="view-heading-sub">Week of May 26 – Jun 1, 2026</div>
+        </div>
+        <button class="btn-primary" onclick="window.saveGoals()">Save targets</button>
+      </div>
+
+      <div class="p-banner p-banner-info">
+        <span class="p-banner-icon">ℹ️</span>
+        <div class="p-banner-body">Set each associate's target for the week. No code, no spreadsheets — type a number and save. Updated targets flow straight into the next report.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Weekly targets by associate</div>
+            <div class="card-subtitle">Previous week's target shown for reference</div>
+          </div>
+        </div>
+        <div id="goals-body"></div>
+      </div>
+    </div>
+
+    <!-- ════════ VIEW: EMAIL RECIPIENTS ════════ -->
+    <div id="view-recipients" class="view-hidden">
+      <div class="view-heading-row">
+        <div>
+          <div class="view-heading-title">Email recipients</div>
+          <div class="view-heading-sub">Everyone who receives the Monday report</div>
+        </div>
+        <button class="btn-primary" onclick="window.openRecipientModal()">Add recipient</button>
+      </div>
+
+      <div class="p-banner p-banner-info">
+        <span class="p-banner-icon">🕘</span>
+        <div class="p-banner-body">The report is emailed automatically every <strong>Monday at 7:00 AM (America/Chicago)</strong>. Add or remove people here anytime — no developer needed.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recipients <span class="badge badge-subdued" id="recipient-count">6</span></div>
+            <div class="card-subtitle">These addresses receive the weekly PDF</div>
+          </div>
+        </div>
+        <div id="recipients-body"></div>
+      </div>
+    </div>
+
+    <!-- ════════ VIEW: REPORT HISTORY ════════ -->
+    <div id="view-history" class="view-hidden">
+      <div class="view-heading-row">
+        <div>
+          <div class="view-heading-title">Report history</div>
+          <div class="view-heading-sub">Every report generated and sent</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="grid-wrap">
+          <table class="data-grid">
+            <thead><tr>
+              <th>Week</th><th>Sent on</th><th class="num">Recipients</th><th class="num">Net sales</th><th>Status</th><th class="actions">Actions</th>
+            </tr></thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ VIEW: SETTINGS ════════ -->
+    <div id="view-settings" class="view-hidden">
+      <div class="view-heading-row">
+        <div>
+          <div class="view-heading-title">Settings</div>
+          <div class="view-heading-sub">Schedule, content, and delivery</div>
+        </div>
+        <button class="btn-primary" onclick="window.saveSettings()">Save settings</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Delivery schedule</div></div></div>
+        <div class="setting-row">
+          <div class="setting-text"><div class="t">Send automatically</div><div class="d">Generate and email the report on a recurring schedule</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-text"><div class="t">Day &amp; time</div><div class="d">When the weekly report is generated and delivered</div></div>
+          <div style="display:flex; gap:8px;">
+            <select class="form-select" style="width:130px"><option>Monday</option><option>Sunday</option><option>Tuesday</option></select>
+            <select class="form-select" style="width:110px"><option>7:00 AM</option><option>6:00 AM</option><option>8:00 AM</option></select>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-text"><div class="t">Time zone</div><div class="d">Used for the schedule above</div></div>
+          <select class="form-select" style="width:200px"><option>America/Chicago (CST)</option><option>America/New_York (EST)</option></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Report sections</div><div class="card-subtitle">Choose what appears in the PDF</div></div></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Net sales by location</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Staff performance</div><div class="d">Requires Shopify POS Pro at each location for sales attribution</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Top customers</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Year-over-year comparison</div><div class="d">Unlocks once 12 months of history is available</div></div><label class="toggle"><input type="checkbox" disabled><span class="toggle-slider"></span></label></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Locations included</div></div></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Michigan Ave</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">Old Orchard</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      </div>
+
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header"><div><div class="card-title">Sender</div></div></div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Reply-to address</label>
+          <input class="form-input" style="max-width:320px" value="reports@space519.com">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div id="modal-mount"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+
+  /* ───── STATE / MOCK DATA ───── */
+  let targetsChanged = false;
+
+  const LOCATIONS = [
+    { id:'mich', name:'Michigan Ave', net:24180, txns:312, units:489, aov:77.50 },
+    { id:'oldo', name:'Old Orchard',  net:16920, txns:241, units:358, aov:70.20 }
+  ];
+
+  const STAFF = [
+    { name:'Dana Whitfield', loc:'Michigan Ave', target:6000, prev:5500, net:6840 },
+    { name:'Marcus Lee',     loc:'Michigan Ave', target:5500, prev:5500, net:4910 },
+    { name:'Priya Anand',    loc:'Michigan Ave', target:5000, prev:4500, net:5260 },
+    { name:'Sofia Reyes',    loc:'Michigan Ave', target:4500, prev:4500, net:4180 },
+    { name:'Jordan Park',    loc:'Old Orchard',  target:5000, prev:4800, net:5720 },
+    { name:'Elena Petrova',  loc:'Old Orchard',  target:4500, prev:4500, net:4050 },
+    { name:'Tariq Hassan',   loc:'Old Orchard',  target:4000, prev:3800, net:4390 }
+  ];
+
+  const CUSTOMERS = [
+    { name:'The Drake Hotel', orders:3, spend:2480 },
+    { name:'Margaret Chen',   orders:2, spend:1150 },
+    { name:'Blueprint Interiors', orders:1, spend:980 },
+    { name:'David Osei',      orders:2, spend:720 },
+    { name:'Lauren Tisch',    orders:1, spend:640 }
+  ];
+
+  let RECIPIENTS = [
+    { id:'rc1', name:'Sarah Burton',  email:'sarah@space519.com',   role:'Operations' },
+    { id:'rc2', name:'Jonathan Vargas', email:'owner@space519.com', role:'Owner' },
+    { id:'rc3', name:'Dana Whitfield', email:'dana@space519.com',   role:'Store Manager — Michigan Ave' },
+    { id:'rc4', name:'Jordan Park',   email:'jordan@space519.com',  role:'Store Manager — Old Orchard' },
+    { id:'rc5', name:'Sales Team',    email:'team@space519.com',    role:'Team distribution' },
+    { id:'rc6', name:'Accounting',    email:'books@space519.com',   role:'Finance' }
+  ];
+
+  const HISTORY = [
+    { week:'May 19 – 25, 2026', sent:'Mon May 26 · 7:01 AM', recipients:6, net:39480 },
+    { week:'May 12 – 18, 2026', sent:'Mon May 19 · 7:00 AM', recipients:5, net:37920 },
+    { week:'May 5 – 11, 2026',  sent:'Mon May 12 · 7:03 AM', recipients:5, net:41650 },
+    { week:'Apr 28 – May 4, 2026', sent:'Mon May 5 · 7:02 AM', recipients:5, net:36210 }
+  ];
+
+  /* ───── HELPERS ───── */
+  const money  = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const money0 = (n) => '$' + Number(n).toLocaleString('en-US');
+  const initials = (name) => name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+
+  /* ───── TOAST ───── */
+  window.showToast = function(msg, type) {
+    type = type || 'success';
+    const c = $('#toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast toast-' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity .3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2600);
+  };
+
+  /* ───── VIEW SWITCHING ───── */
+  const VIEWS = ['report','goals','recipients','history','settings'];
+  window.switchView = function(name) {
+    VIEWS.forEach(v => {
+      const view = document.getElementById('view-' + v);
+      const nav  = document.getElementById('nav-' + v);
+      if (view) view.classList.toggle('view-hidden', v !== name);
+      if (nav)  nav.classList.toggle('active', v === name);
+    });
+    document.querySelector('.admin-main').scrollTop = 0;
+  };
+
+  /* ───── REPORT ───── */
+  function renderReport() {
+    const totNet = LOCATIONS.reduce((s,l) => s + l.net, 0);
+    const totTx  = LOCATIONS.reduce((s,l) => s + l.txns, 0);
+    const totU   = LOCATIONS.reduce((s,l) => s + l.units, 0);
+    const aov    = totNet / totTx;
+
+    $('#summary-grid').innerHTML =
+      stat(money(totNet), 'Net sales') +
+      stat(totTx.toLocaleString('en-US'), 'Transactions') +
+      stat(totU.toLocaleString('en-US'), 'Units sold') +
+      stat(money(aov), 'Avg. order value');
+
+    $('#loc-grid').innerHTML = LOCATIONS.map(l => `
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header">
+          <div><div class="card-title">${l.name}</div><div class="card-subtitle">${l.txns} transactions · ${l.units} units</div></div>
+          <span class="badge badge-subdued">Location</span>
+        </div>
+        <div class="loc-net">${money(l.net)}</div>
+        <div class="loc-net-label">Net sales</div>
+        <div class="loc-substats">
+          <div class="s"><div class="v">${money(l.aov)}</div><div class="l">AOV</div></div>
+          <div class="s"><div class="v">${l.txns}</div><div class="l">Orders</div></div>
+          <div class="s"><div class="v">${l.units}</div><div class="l">Units</div></div>
+        </div>
+      </div>`).join('');
+
+    $('#staff-tbody').innerHTML = STAFF.map(s => {
+      const diff = s.net - s.target;
+      const up = diff >= 0;
+      const badge = `<span class="badge ${up ? 'badge-up' : 'badge-down'}">${up ? '+' : '−'}${money0(Math.abs(diff))}</span>`;
+      return `<tr>
+        <td><div class="rep-cell"><span class="rep-avatar">${initials(s.name)}</span><span class="rep-name">${s.name}</span></div></td>
+        <td style="color:#616161">${s.loc}</td>
+        <td class="num">${money0(s.target)}</td>
+        <td class="num">${money0(s.net)}</td>
+        <td class="num">${badge}</td>
+      </tr>`;
+    }).join('');
+
+    const attributed = STAFF.reduce((s,x) => s + x.net, 0);
+    const totalNet = LOCATIONS.reduce((s,l) => s + l.net, 0);
+    const pct = Math.round((attributed / totalNet) * 100);
+    $('#staff-foot').textContent = `${money0(attributed)} of ${money0(totalNet)} net sales (${pct}%) attributed to a staff member. Unattributed sales appear in location totals but not here.`;
+
+    $('#customers-tbody').innerHTML = CUSTOMERS.map(c => `
+      <tr>
+        <td><div class="rep-cell"><span class="rep-avatar">${initials(c.name)}</span><span class="rep-name">${c.name}</span></div></td>
+        <td class="num">${c.orders}</td>
+        <td class="num">${money(c.spend)}</td>
+      </tr>`).join('');
+
+    $('#report-rerun-banner').classList.toggle('view-hidden', !targetsChanged);
+  }
+  function stat(v, l) { return `<div class="summary-stat"><div class="v">${v}</div><div class="l">${l}</div></div>`; }
+
+  window.rerunReport = function() {
+    const btn = $('#rerun-btn');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-top-color:#303030;border-color:rgba(0,0,0,.2);border-top-color:#303030"></span> Re-running…';
+    setTimeout(() => {
+      targetsChanged = false;
+      renderReport();
+      const now = nowLabel();
+      $('#report-last-generated').textContent = 'Last generated ' + now;
+      btn.disabled = false;
+      btn.textContent = 'Re-run report';
+      window.showToast('Report refreshed with the latest data');
+    }, 1100);
+  };
+
+  window.emailReport = function() {
+    const n = RECIPIENTS.length;
+    const now = nowLabel();
+    $('#report-last-sent').textContent = 'Last sent ' + now + ' to ' + n + ' recipient' + (n === 1 ? '' : 's');
+    window.showToast('Report sent to ' + n + ' recipient' + (n === 1 ? '' : 's'));
+  };
+
+  function nowLabel() {
+    const d = new Date();
+    let h = d.getHours(); const m = String(d.getMinutes()).padStart(2,'0');
+    const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12; if (h === 0) h = 12;
+    const mo = d.toLocaleString('en-US', { month:'short' });
+    return `${mo} ${d.getDate()} · ${h}:${m} ${ap}`;
+  }
+
+  /* ───── GOALS ───── */
+  function renderGoals() {
+    const locs = [...new Set(STAFF.map(s => s.loc))];
+    let html = '';
+    locs.forEach(loc => {
+      html += `<div class="goal-loc-label">${loc}</div>`;
+      STAFF.forEach((s, i) => {
+        if (s.loc !== loc) return;
+        html += `<div class="goal-row">
+          <div class="goal-rep"><span class="rep-avatar">${initials(s.name)}</span><span class="rep-name">${s.name}</span></div>
+          <div class="goal-prev">Last week: ${money0(s.prev)}</div>
+          <div class="goal-input-wrap"><div class="input-prefix-wrap"><span class="prefix">$</span><input class="form-input" type="number" id="goal-${i}" value="${s.target}"></div></div>
+        </div>`;
+      });
+    });
+    $('#goals-body').innerHTML = html;
+  }
+
+  window.saveGoals = function() {
+    STAFF.forEach((s, i) => {
+      const el = document.getElementById('goal-' + i);
+      if (el) {
+        const v = parseInt(el.value, 10);
+        if (!isNaN(v) && v >= 0) s.target = v;
+      }
+    });
+    targetsChanged = true;
+    renderReport();
+    window.showToast('Targets saved for week of May 26 – Jun 1');
+  };
+
+  /* ───── RECIPIENTS ───── */
+  function renderRecipients() {
+    $('#recipients-body').innerHTML = RECIPIENTS.map(r => `
+      <div class="recipient-row">
+        <span class="rep-avatar">${initials(r.name)}</span>
+        <div class="recipient-info">
+          <div class="recipient-name">${r.name}</div>
+          <div class="recipient-email">${r.email} · ${r.role}</div>
+        </div>
+        <button class="recipient-remove" title="Remove" onclick="window.removeRecipient('${r.id}')">&times;</button>
+      </div>`).join('');
+    $('#recipient-count').textContent = RECIPIENTS.length;
+  }
+
+  window.removeRecipient = function(id) {
+    const r = RECIPIENTS.find(x => x.id === id);
+    RECIPIENTS = RECIPIENTS.filter(x => x.id !== id);
+    renderRecipients();
+    if (r) window.showToast(r.name + ' removed', 'info');
+  };
+
+  window.openRecipientModal = function() {
+    $('#modal-mount').innerHTML = `
+      <div class="modal-backdrop" onclick="window.closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title">Add recipient</div>
+            <button class="modal-close" onclick="window.closeModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="rc-name" placeholder="Full name"></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="rc-email" type="email" placeholder="name@space519.com"></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Role <span style="color:#919191;font-weight:400">(optional)</span></label><input class="form-input" id="rc-role" placeholder="e.g. Store Manager"></div>
+            <div class="form-err view-hidden" id="rc-err"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" onclick="window.closeModal()">Cancel</button>
+            <button class="btn-primary" onclick="window.submitRecipient()">Add recipient</button>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  window.closeModal = function() { $('#modal-mount').innerHTML = ''; };
+
+  window.submitRecipient = function() {
+    const name  = document.getElementById('rc-name').value.trim();
+    const email = document.getElementById('rc-email').value.trim();
+    const role  = document.getElementById('rc-role').value.trim() || 'Team';
+    const err   = document.getElementById('rc-err');
+    const fail  = (m) => { err.textContent = m; err.classList.remove('view-hidden'); };
+    if (!name || !email) return fail('Name and email are both required.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Please enter a valid email address.');
+    if (RECIPIENTS.some(r => r.email.toLowerCase() === email.toLowerCase())) return fail('That email is already on the list.');
+    RECIPIENTS.push({ id:'rc' + Date.now(), name, email, role });
+    renderRecipients();
+    window.closeModal();
+    window.showToast(name + ' added to the recipient list');
+  };
+
+  /* ───── HISTORY ───── */
+  function renderHistory() {
+    $('#history-tbody').innerHTML = HISTORY.map((h, i) => `
+      <tr>
+        <td style="font-weight:500">${h.week}</td>
+        <td style="color:#616161">${h.sent}</td>
+        <td class="num">${h.recipients}</td>
+        <td class="num">${money0(h.net)}</td>
+        <td><span class="badge badge-sent">Sent</span></td>
+        <td class="actions">
+          <div class="btn-row" style="justify-content:flex-end">
+            <button class="btn-secondary btn-sm" onclick="window.showToast('Opening report for ${h.week}','info')">View</button>
+            <button class="btn-secondary btn-sm" onclick="window.showToast('Re-sending report for ${h.week}')">Re-send</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  /* ───── SETTINGS ───── */
+  window.saveSettings = function() { window.showToast('Settings saved'); };
+
+  /* ───── ACCOUNT POPOVER ───── */
+  window.toggleAccountPopover = function(e) {
+    e.stopPropagation();
+    $('#account-popover').classList.toggle('view-hidden');
+  };
+  window.closeAccountPopover = function() { $('#account-popover').classList.add('view-hidden'); };
+  document.addEventListener('click', function() { window.closeAccountPopover(); });
+
+  /* ───── INIT ───── */
+  renderReport();
+  renderGoals();
+  renderRecipients();
+  renderHistory();
+  window.switchView('report');
+})();
+</script>
+</body>
+</html>
