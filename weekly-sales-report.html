@@ -268,6 +268,16 @@ button { cursor: pointer; }
 .data-grid tbody tr.dept-total td { font-weight: 700; color: #1a1a1a; background: #fafafa; border-top: 2px solid #e3e3e3; border-bottom: none; }
 .grid-wrap .data-grid tbody tr.dept-sub td:first-child { padding-left: 42px; }
 
+/* customer sub-line (salesperson) */
+.rep-sub { font-size: 11px; color: #919191; margin-top: 1px; }
+
+/* "This week's target" column emphasis — recolored text (Polaris: s-text tone/strong) */
+.data-grid th.tw-target { color: #005bd3; }
+.data-grid td.tw-target { color: #005bd3; font-weight: 700; }
+
+/* boxed printed-report sections (Customers & Vendors) */
+.print-section.boxed { border: 1px solid #d4d4d4; border-radius: 8px; padding: 12px 14px; }
+
 /* ───── PRINTED REPORT (screen preview) ───── */
 .print-sheet { background: #fff; border: 1px solid #e3e3e3; border-radius: 10px; padding: 36px 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 .print-doc { color: #1a1a1a; }
@@ -596,7 +606,7 @@ button { cursor: pointer; }
       <div class="card">
         <div class="card-header"><div><div class="card-title">Locations included</div></div></div>
         <div class="setting-row"><div class="setting-text"><div class="t">Gold Coast</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
-        <div class="setting-row"><div class="setting-text"><div class="t">Old Orchard</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-text"><div class="t">North Shore</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
       </div>
 
       <div class="card" style="margin-bottom:0">
@@ -627,7 +637,7 @@ button { cursor: pointer; }
   /* ───── STATE / MOCK DATA ───── */
   let targetsChanged = false;
 
-  // TODO: confirm real location names with client — "Gold Coast" / "Old Orchard" are placeholders.
+  // TODO: confirm real location names with client — "Gold Coast" / "North Shore" are placeholders.
   // net/txns/units/aov are this week's figures; week/month/year carry actual · target · LY (last year).
   const LOCATIONS = [
     { id:'gc', name:'Gold Coast',
@@ -635,7 +645,7 @@ button { cursor: pointer; }
       weekTarget:120000, weekLY:108202,
       monthNet:124540, monthTarget:120000, monthLY:108202,
       yearNet:2735564, yearTarget:2922410, yearLY:2862485 },
-    { id:'oo', name:'Old Orchard',
+    { id:'oo', name:'North Shore',
       net:86300, txns:248, units:333, aov:86300/248,
       weekTarget:92000, weekLY:80100,
       monthNet:86300, monthTarget:92000, monthLY:80100,
@@ -651,40 +661,40 @@ button { cursor: pointer; }
     { name:'Cassandra Ng',   loc:'Gold Coast',  net:23623, target:10000, targetThisWeek:28000 },
     { name:'Nancy Okafor',   loc:'Gold Coast',  net:5901,  target:6000,  targetThisWeek:8000 },
     { name:'Mary Kate Ryan', loc:'Gold Coast',  net:3715,  target:3000,  targetThisWeek:6000 },
-    { name:'Brooke Hanson',  loc:'Old Orchard', net:18900, target:18000, targetThisWeek:19000 },
-    { name:'Renata Vidal',   loc:'Old Orchard', net:16540, target:20000, targetThisWeek:18000 },
-    { name:'Daphne Lim',     loc:'Old Orchard', net:14220, target:12000, targetThisWeek:14000 },
-    { name:'Lucia Moreno',   loc:'Old Orchard', net:12880, target:15000, targetThisWeek:13000 },
-    { name:'Tessa Wright',   loc:'Old Orchard', net:9640,  target:10000, targetThisWeek:10000 },
-    { name:'Bianca Russo',   loc:'Old Orchard', net:6310,  target:7000,  targetThisWeek:7000 },
-    { name:'Simone Clarke',  loc:'Old Orchard', net:4180,  target:4000,  targetThisWeek:5000 }
+    { name:'Brooke Hanson',  loc:'North Shore', net:18900, target:18000, targetThisWeek:19000 },
+    { name:'Renata Vidal',   loc:'North Shore', net:16540, target:20000, targetThisWeek:18000 },
+    { name:'Daphne Lim',     loc:'North Shore', net:14220, target:12000, targetThisWeek:14000 },
+    { name:'Lucia Moreno',   loc:'North Shore', net:12880, target:15000, targetThisWeek:13000 },
+    { name:'Tessa Wright',   loc:'North Shore', net:9640,  target:10000, targetThisWeek:10000 },
+    { name:'Bianca Russo',   loc:'North Shore', net:6310,  target:7000,  targetThisWeek:7000 },
+    { name:'Simone Clarke',  loc:'North Shore', net:4180,  target:4000,  targetThisWeek:5000 }
   ];
 
   // Top 10 customers per location, ranked by net spend (last week)
   const CUSTOMERS_BY_LOC = {
     'Gold Coast': [
-      { name:'Trish Rooney',    orders:3, spend:7655 },
-      { name:'Shanna Glazer',   orders:2, spend:5660 },
-      { name:'Eloise Gershen',  orders:2, spend:5600 },
-      { name:'Kristy Wallen',   orders:4, spend:4930 },
-      { name:'Averill Leviton', orders:1, spend:4500 },
-      { name:'Margaret Dunne',  orders:2, spend:3980 },
-      { name:'Priya Raman',     orders:3, spend:3420 },
-      { name:'Lauren Tisch',    orders:1, spend:2890 },
-      { name:'Beatrice Okoro',  orders:2, spend:2540 },
-      { name:'Hannah Weiss',    orders:2, spend:2210 }
+      { name:'Trish Rooney',    orders:3, spend:7655, sp:'Anna Delgado' },
+      { name:'Shanna Glazer',   orders:2, spend:5660, sp:'Cassandra Ng' },
+      { name:'Eloise Gershen',  orders:2, spend:5600, sp:'Jen Alvarez' },
+      { name:'Kristy Wallen',   orders:4, spend:4930, sp:'Anna Delgado' },
+      { name:'Averill Leviton', orders:1, spend:4500, sp:'Whitney Cole' },
+      { name:'Margaret Dunne',  orders:2, spend:3980, sp:'McKenna Boyd' },
+      { name:'Priya Raman',     orders:3, spend:3420, sp:'Cassandra Ng' },
+      { name:'Lauren Tisch',    orders:1, spend:2890, sp:'Jen Alvarez' },
+      { name:'Beatrice Okoro',  orders:2, spend:2540, sp:'Whitney Cole' },
+      { name:'Hannah Weiss',    orders:2, spend:2210, sp:'Nancy Okafor' }
     ],
-    'Old Orchard': [
-      { name:'Diane Kessler',   orders:3, spend:6120 },
-      { name:'Marisol Vega',    orders:2, spend:4880 },
-      { name:'Robin Achebe',    orders:2, spend:4310 },
-      { name:'Felicia Wong',    orders:3, spend:3700 },
-      { name:'Janet Pearlman',  orders:1, spend:3260 },
-      { name:'Carol Behar',     orders:2, spend:2980 },
-      { name:'Sandra Lemoine',  orders:1, spend:2540 },
-      { name:'Theresa Kapoor',  orders:2, spend:2110 },
-      { name:'Gabrielle Moss',  orders:1, spend:1870 },
-      { name:'Nadia Haddad',    orders:2, spend:1650 }
+    'North Shore': [
+      { name:'Diane Kessler',   orders:3, spend:6120, sp:'Brooke Hanson' },
+      { name:'Marisol Vega',    orders:2, spend:4880, sp:'Daphne Lim' },
+      { name:'Robin Achebe',    orders:2, spend:4310, sp:'Renata Vidal' },
+      { name:'Felicia Wong',    orders:3, spend:3700, sp:'Lucia Moreno' },
+      { name:'Janet Pearlman',  orders:1, spend:3260, sp:'Brooke Hanson' },
+      { name:'Carol Behar',     orders:2, spend:2980, sp:'Daphne Lim' },
+      { name:'Sandra Lemoine',  orders:1, spend:2540, sp:'Tessa Wright' },
+      { name:'Theresa Kapoor',  orders:2, spend:2110, sp:'Renata Vidal' },
+      { name:'Gabrielle Moss',  orders:1, spend:1870, sp:'Bianca Russo' },
+      { name:'Nadia Haddad',    orders:2, spend:1650, sp:'Lucia Moreno' }
     ]
   };
 
@@ -702,7 +712,7 @@ button { cursor: pointer; }
       { name:'Khaite',           units:5,  net:4120 },
       { name:'Mara Hoffman',     units:11, net:3540 }
     ],
-    'Old Orchard': [
+    'North Shore': [
       { name:'Altuzarra',        units:9,  net:13200 },
       { name:'By Pariah',        units:18, net:9100 },
       { name:'Carven',           units:12, net:7400 },
@@ -729,7 +739,7 @@ button { cursor: pointer; }
       { name:'Market',      net:116 },
       { name:'None',        net:8944 }
     ],
-    'Old Orchard': [
+    'North Shore': [
       { name:'RTW',         net:44200 },
       { name:'Jewelry',     net:13100 },
       { name:'Accessories', net:9800, sub:[ { name:'Shoes', net:5400 }, { name:'Handbags', net:3100 } ] },
@@ -744,7 +754,7 @@ button { cursor: pointer; }
     { id:'rc1', name:'Sarah Burton',    email:'sarah@space519.com',  role:'Operations' },
     { id:'rc2', name:'Jonathan Vargas', email:'owner@space519.com',  role:'Owner' },
     { id:'rc3', name:'Dana Whitfield',  email:'dana@space519.com',   role:'Store Manager — Gold Coast' },
-    { id:'rc4', name:'Jordan Park',     email:'jordan@space519.com', role:'Store Manager — Old Orchard' },
+    { id:'rc4', name:'Jordan Park',     email:'jordan@space519.com', role:'Store Manager — North Shore' },
     { id:'rc5', name:'Sales Team',      email:'team@space519.com',   role:'Team distribution' },
     { id:'rc6', name:'Accounting',      email:'books@space519.com',  role:'Finance' }
   ];
@@ -810,7 +820,7 @@ button { cursor: pointer; }
     return `<table class="data-grid">
       <thead><tr><th>Customer</th><th class="num">Orders</th><th class="num">Net spend</th></tr></thead>
       <tbody>${list.map(c => `<tr>
-        <td><div class="rep-cell"><span class="rep-avatar">${initials(c.name)}</span><span class="rep-name">${c.name}</span></div></td>
+        <td><div class="rep-cell"><span class="rep-avatar">${initials(c.name)}</span><div><div class="rep-name">${c.name}</div><div class="rep-sub">Sold by ${c.sp}</div></div></div></td>
         <td class="num">${c.orders}</td>
         <td class="num">${money0(c.spend)}</td>
       </tr>`).join('')}</tbody>
@@ -848,13 +858,13 @@ button { cursor: pointer; }
   function renderSalespeople(locName) {
     const list = STAFF.filter(s => s.loc === locName);
     return `<table class="data-grid">
-      <thead><tr><th>Salesperson</th><th class="num">Net sales last wk</th><th class="num">Last wk's target</th><th class="num">% to goal</th><th class="num">This week's target</th></tr></thead>
+      <thead><tr><th>Salesperson</th><th class="num">Net sales last wk</th><th class="num">Last wk's target</th><th class="num">% to goal</th><th class="num tw-target">This week's target</th></tr></thead>
       <tbody>${list.map(s => `<tr>
         <td><div class="rep-cell"><span class="rep-avatar">${initials(s.name)}</span><span class="rep-name">${s.name}</span></div></td>
         <td class="num">${money0(s.net)}</td>
         <td class="num">${money0(s.target)}</td>
         <td class="num">${pctBadge(s.net, s.target)}</td>
-        <td class="num">${money0(s.targetThisWeek)}</td>
+        <td class="num tw-target">${money0(s.targetThisWeek)}</td>
       </tr>`).join('')}</tbody>
     </table>`;
   }
@@ -928,8 +938,8 @@ button { cursor: pointer; }
         </div>
         <div class="print-section"><h4>Sales vs. target vs. last year</h4>${renderScorecard(l)}</div>
         <div class="print-grid2">
-          <div class="print-section"><h4>Top 10 customers — last week</h4>${renderCustomers(l.name)}</div>
-          <div class="print-section"><h4>Top 10 vendors — last week</h4>${renderVendors(l.name)}</div>
+          <div class="print-section boxed"><h4>Top 10 customers — last week</h4>${renderCustomers(l.name)}</div>
+          <div class="print-section boxed"><h4>Top 10 vendors — last week</h4>${renderVendors(l.name)}</div>
         </div>
         <div class="print-section"><h4>Net sales by department — last week</h4>${renderDepartments(l.name)}</div>
         <div class="print-section"><h4>Net sales by salesperson — last week</h4>${renderSalespeople(l.name)}</div>
