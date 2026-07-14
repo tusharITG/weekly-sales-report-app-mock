@@ -307,7 +307,10 @@ button { cursor: pointer; }
   html, body { height: auto !important; overflow: visible !important; background: #fff !important; font-size: 10.5px; }
   .admin-topbar, .admin-sidebar, .toast-container, #toast-container, .app-header, .print-actions, .no-print { display: none !important; }
   #view-report, #view-goals, #view-recipients, #view-history, #view-settings { display: none !important; }
-  #view-print { display: block !important; }
+  #view-print, #view-print-gc, #view-print-oo { display: none !important; }
+  #view-print:not(.view-hidden),
+  #view-print-gc:not(.view-hidden),
+  #view-print-oo:not(.view-hidden) { display: block !important; }
   .admin-main { position: static !important; inset: auto !important; top: 0 !important; left: 0 !important; right: auto !important; bottom: auto !important; width: 100% !important; overflow: visible !important; background: #fff !important; }
   .admin-content { max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .print-sheet { border: none !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important; }
@@ -366,6 +369,8 @@ button { cursor: pointer; }
   <ul class="sidebar-sub-items">
     <li><a class="sidebar-sub-item active" id="nav-report" onclick="window.switchView('report')">Current Report</a></li>
     <li><a class="sidebar-sub-item" id="nav-print" onclick="window.switchView('print')">Printed report</a></li>
+    <li><a class="sidebar-sub-item" id="nav-print-gc" onclick="window.switchView('print-gc')">Printed report (Gold Coast)</a></li>
+    <li><a class="sidebar-sub-item" id="nav-print-oo" onclick="window.switchView('print-oo')">Printed report (North Shore)</a></li>
     <li><a class="sidebar-sub-item" id="nav-goals" onclick="window.switchView('goals')">Sales Goals</a></li>
     <li><a class="sidebar-sub-item" id="nav-recipients" onclick="window.switchView('recipients')">Email Recipients</a></li>
     <li><a class="sidebar-sub-item" id="nav-history" onclick="window.switchView('history')">Report History</a></li>
@@ -480,6 +485,50 @@ button { cursor: pointer; }
         </div>
       </div>
       <div class="print-sheet" id="print-sheet"></div>
+    </div>
+
+    <!-- ════════ VIEW: PRINTED REPORT — GOLD COAST ════════ -->
+    <div id="view-print-gc" class="view-hidden">
+      <div class="view-heading-row print-actions">
+        <div>
+          <div class="view-heading-title">Printed report — Gold Coast</div>
+          <div class="view-heading-sub">Single-location owner recap — review on screen, then export to PDF</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="window.switchView('report')">Back to app</button>
+          <button class="btn-primary" onclick="window.print()">Download PDF / Print</button>
+        </div>
+      </div>
+      <div class="p-banner p-banner-info no-print">
+        <span class="p-banner-icon">📧</span>
+        <div class="p-banner-body">
+          <div class="p-banner-title">Gold Coast only</div>
+          <div>The same clean printed layout as the combined report, scoped to a single location for store-level review.</div>
+        </div>
+      </div>
+      <div class="print-sheet" id="print-sheet-gc"></div>
+    </div>
+
+    <!-- ════════ VIEW: PRINTED REPORT — NORTH SHORE ════════ -->
+    <div id="view-print-oo" class="view-hidden">
+      <div class="view-heading-row print-actions">
+        <div>
+          <div class="view-heading-title">Printed report — North Shore</div>
+          <div class="view-heading-sub">Single-location owner recap — review on screen, then export to PDF</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="window.switchView('report')">Back to app</button>
+          <button class="btn-primary" onclick="window.print()">Download PDF / Print</button>
+        </div>
+      </div>
+      <div class="p-banner p-banner-info no-print">
+        <span class="p-banner-icon">📧</span>
+        <div class="p-banner-body">
+          <div class="p-banner-title">North Shore only</div>
+          <div>The same clean printed layout as the combined report, scoped to a single location for store-level review.</div>
+        </div>
+      </div>
+      <div class="print-sheet" id="print-sheet-oo"></div>
     </div>
 
     <!-- ════════ VIEW: SALES GOALS ════════ -->
@@ -644,12 +693,12 @@ button { cursor: pointer; }
       net:124540, txns:324, units:451, aov:124540/324,
       weekTarget:120000, weekLY:108202,
       monthNet:124540, monthTarget:120000, monthLY:108202,
-      yearNet:2735564, yearTarget:2922410, yearLY:2862485 },
+      yearNet:2735564, yearTarget:2922410, yearLY:2862485, remote:27545 },
     { id:'oo', name:'North Shore',
       net:86300, txns:248, units:333, aov:86300/248,
       weekTarget:92000, weekLY:80100,
       monthNet:86300, monthTarget:92000, monthLY:80100,
-      yearNet:1910400, yearTarget:2140000, yearLY:1988000 }
+      yearNet:1910400, yearTarget:2140000, yearLY:1988000, remote:15420 }
   ];
 
   // target = last week's target · targetThisWeek = the coming week's target · net = last week's actual
@@ -772,6 +821,19 @@ button { cursor: pointer; }
   const initials = (name) => name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
   const pct = (a, t) => t ? Math.round((a / t) * 100) : 0;
   const pctBadge = (a, t) => { const p = pct(a, t); return `<span class="badge ${p >= 100 ? 'badge-up' : 'badge-down'}">${p}%</span>`; };
+  const lyPct = (a, ly) => ly ? (a / ly * 100).toFixed(2) + '%' : '—';
+  const lyBadge = (a, ly) => { const v = ly ? (a / ly * 100).toFixed(2) : '0.00'; return `<span class="badge ${a >= ly ? 'badge-up' : 'badge-down'}">${v}%</span>`; };
+  const moneySigned = (n) => (n < 0 ? '−' : '+') + '$' + Math.abs(Number(n)).toLocaleString('en-US');
+  const varCell = (v) => `<td class="num" style="color:${v >= 0 ? '#1f7a3f' : '#c0341d'};font-weight:700">${moneySigned(v)}</td>`;
+
+  // Coming-week days (NEXT_WEEK_LABEL = Jun 8 – 14, 2026) + a realistic weekday→weekend sales curve.
+  const NEXT_WEEK_DAYS = ['Mon Jun 8','Tue Jun 9','Wed Jun 10','Thu Jun 11','Fri Jun 12','Sat Jun 13','Sun Jun 14'];
+  const DAY_WEIGHTS = [0.11, 0.11, 0.12, 0.13, 0.16, 0.19, 0.18];
+  function distribute(total, weights) {
+    const out = weights.map(w => Math.round(total * w));
+    out[out.length - 1] += total - out.reduce((a, b) => a + b, 0); // absorb rounding so the column sums exactly
+    return out;
+  }
 
   /* ───── TOAST ───── */
   window.showToast = function(msg, type) {
@@ -785,7 +847,7 @@ button { cursor: pointer; }
   };
 
   /* ───── VIEW SWITCHING ───── */
-  const VIEWS = ['report','print','goals','recipients','history','settings'];
+  const VIEWS = ['report','print','print-gc','print-oo','goals','recipients','history','settings'];
   window.switchView = function(name) {
     VIEWS.forEach(v => {
       const view = document.getElementById('view-' + v);
@@ -798,21 +860,47 @@ button { cursor: pointer; }
 
   /* ───── SHARED SECTION RENDERERS (reused by app + printed views) ───── */
   function renderScorecard(l) {
+    // Period · This year · Last year · % vs LY · Goal · Variance($).
+    // Week & month variance = actual − goal; year variance = actual − LY (matches the client's sheet).
     const rows = [
-      ['This week',  l.net,      l.weekTarget,  l.weekLY],
-      ['This month', l.monthNet, l.monthTarget, l.monthLY],
-      ['This year',  l.yearNet,  l.yearTarget,  l.yearLY]
+      ['This week',  l.net,      l.weekLY,  l.weekTarget,  l.net - l.weekTarget],
+      ['This month', l.monthNet, l.monthLY, l.monthTarget, l.monthNet - l.monthTarget],
+      ['This year',  l.yearNet,  l.yearLY,  l.yearTarget,  l.yearNet - l.yearLY]
     ];
     return `<table class="data-grid">
-      <thead><tr><th>Period</th><th class="num">Net sales</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Last year</th></tr></thead>
+      <thead><tr><th>Period</th><th class="num">This year</th><th class="num">Last year</th><th class="num">% vs LY</th><th class="num">Goal</th><th class="num">Variance</th></tr></thead>
       <tbody>${rows.map(r => `<tr>
         <td style="font-weight:600">${r[0]}</td>
         <td class="num">${money0(r[1])}</td>
-        <td class="num">${money0(r[2])}</td>
-        <td class="num">${pctBadge(r[1], r[2])}</td>
-        <td class="num" style="color:#616161">${money0(r[3])}</td>
+        <td class="num" style="color:#616161">${money0(r[2])}</td>
+        <td class="num">${lyPct(r[1], r[2])}</td>
+        <td class="num">${money0(r[3])}</td>
+        ${varCell(r[4])}
       </tr>`).join('')}</tbody>
     </table>`;
+  }
+
+  function renderDailyWeek(l) {
+    const ly   = distribute(l.weekLY, DAY_WEIGHTS);
+    const goal = distribute(l.weekTarget, DAY_WEIGHTS);
+    let rows = NEXT_WEEK_DAYS.map((d, i) => `<tr>
+      <td style="font-weight:600">${d}</td>
+      <td class="num" style="color:#616161">${money0(ly[i])}</td>
+      <td class="num tw-target">${money0(goal[i])}</td>
+    </tr>`).join('');
+    rows += `<tr class="dept-total"><td>Total</td><td class="num">${money0(l.weekLY)}</td><td class="num">${money0(l.weekTarget)}</td></tr>`;
+    return `<table class="data-grid">
+      <thead><tr><th>Day</th><th class="num">Last year sales</th><th class="num tw-target">This week's goal</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function renderRemoteSales(l) {
+    const share = l.net ? (l.remote / l.net * 100).toFixed(1) : '0.0';
+    return `<div style="display:flex; align-items:baseline; gap:12px; padding:2px 0;">
+      <span style="font-size:22px; font-weight:700; color:#1a1a1a; font-variant-numeric:tabular-nums;">${money0(l.remote)}</span>
+      <span style="font-size:13px; color:#616161;">· ${share}% of ${l.name}'s net sales came from remote / online orders this week</span>
+    </div>`;
   }
 
   function renderCustomers(locName) {
@@ -858,7 +946,7 @@ button { cursor: pointer; }
   function renderSalespeople(locName) {
     const list = STAFF.filter(s => s.loc === locName);
     return `<table class="data-grid">
-      <thead><tr><th>Salesperson</th><th class="num">Net sales last wk</th><th class="num">Last wk's target</th><th class="num">% to goal</th><th class="num tw-target">This week's target</th></tr></thead>
+      <thead><tr><th>Salesperson</th><th class="num">Net sales last wk</th><th class="num">Last wk's target</th><th class="num">% to goal</th><th class="num tw-target">This week's goal</th></tr></thead>
       <tbody>${list.map(s => `<tr>
         <td><div class="rep-cell"><span class="rep-avatar">${initials(s.name)}</span><span class="rep-name">${s.name}</span></div></td>
         <td class="num">${money0(s.net)}</td>
@@ -890,11 +978,13 @@ button { cursor: pointer; }
             <div class="loc-kpi-sub"><span class="badge ${up ? 'badge-up' : 'badge-down'}">${wkPct}%</span> to goal · Goal ${money0(l.weekTarget)} · LY ${money0(l.weekLY)}</div>
           </div>
         </div>
-        ${card('Net sales scorecard', 'This week · month · year — actual vs. target vs. last year', renderScorecard(l))}
+        ${card('Net sales scorecard', 'This week · month · year — this year vs. last year vs. goal', renderScorecard(l))}
+        <div class="card"><div class="card-header"><div><div class="card-title">Remote sales — last week</div><div class="card-subtitle">Online / phone orders fulfilled from ${l.name}</div></div></div>${renderRemoteSales(l)}</div>
         ${card('Top 10 customers — last week', 'Ranked by net spend at ' + l.name, renderCustomers(l.name))}
         ${card('Top 10 vendors — last week', 'Ranked by net sales · brand-level', renderVendors(l.name))}
         ${card('Net sales by department — last week', 'Accessories broken out into Shoes &amp; Handbags', renderDepartments(l.name))}
-        ${card('Net sales by salesperson — last week', "Actual &amp; last week's target vs. the coming week's target", renderSalespeople(l.name))}
+        ${card('Net sales by salesperson — last week', "Actual &amp; last week's target vs. the coming week's goal", renderSalespeople(l.name))}
+        ${card('This coming week — daily targets', 'Last year vs. this week&rsquo;s goal by day · week of ' + NEXT_WEEK_LABEL, renderDailyWeek(l))}
       </section>`;
   }
 
@@ -906,6 +996,7 @@ button { cursor: pointer; }
     const totLY     = LOCATIONS.reduce((s, l) => s + l.weekLY, 0);
     const aov       = totNet / totTx;
     const cpct      = pct(totNet, totTarget);
+    const totLYpct  = totLY ? (totNet / totLY * 100).toFixed(2) + '%' : '—';
 
     $('#summary-grid').innerHTML =
       stat(money0(totNet), 'Net sales') +
@@ -914,7 +1005,7 @@ button { cursor: pointer; }
       stat(money(aov), 'Avg. order value');
 
     $('#summary-foot').innerHTML =
-      `Combined weekly goal ${money0(totTarget)} · <span class="badge ${cpct >= 100 ? 'badge-up' : 'badge-down'}">${cpct}%</span> to goal · Last year ${money0(totLY)}`;
+      `Combined weekly goal ${money0(totTarget)} · <span class="badge ${cpct >= 100 ? 'badge-up' : 'badge-down'}">${cpct}%</span> to goal · Last year ${money0(totLY)} · <span class="badge ${totNet >= totLY ? 'badge-up' : 'badge-down'}">${totLYpct}</span> vs LY`;
 
     $('#loc-blocks').innerHTML = LOCATIONS.map(locBlockApp).join('');
 
@@ -936,13 +1027,15 @@ button { cursor: pointer; }
             <span>LY ${money0(l.weekLY)}</span>
           </div>
         </div>
-        <div class="print-section"><h4>Sales vs. target vs. last year</h4>${renderScorecard(l)}</div>
+        <div class="print-section"><h4>Sales: this year vs. last year vs. goal</h4>${renderScorecard(l)}</div>
+        <div class="print-section"><h4>Remote sales — last week</h4>${renderRemoteSales(l)}</div>
         <div class="print-grid2">
           <div class="print-section boxed"><h4>Top 10 customers — last week</h4>${renderCustomers(l.name)}</div>
           <div class="print-section boxed"><h4>Top 10 vendors — last week</h4>${renderVendors(l.name)}</div>
         </div>
         <div class="print-section"><h4>Net sales by department — last week</h4>${renderDepartments(l.name)}</div>
         <div class="print-section"><h4>Net sales by salesperson — last week</h4>${renderSalespeople(l.name)}</div>
+        <div class="print-section"><h4>This coming week — daily targets</h4>${renderDailyWeek(l)}</div>
       </section>`;
   }
 
@@ -976,7 +1069,39 @@ button { cursor: pointer; }
       </div>`;
   }
 
-  function refreshReports() { renderReport(); renderPrint(); }
+  function renderPrintSingle(l, mountId) {
+    const el = document.getElementById(mountId);
+    if (!el) return;
+    const cpct = pct(l.net, l.weekTarget);
+    const ov = [
+      [money0(l.net), 'Net sales'],
+      [money0(l.weekTarget), 'Weekly goal'],
+      [cpct + '%', '% to goal'],
+      [money0(l.weekLY), 'LY week'],
+      [l.txns.toLocaleString('en-US'), 'Transactions'],
+      [l.units.toLocaleString('en-US'), 'Units']
+    ];
+    el.innerHTML = `
+      <div class="print-doc">
+        <div class="print-head">
+          <div class="print-title">Weekly Sales Report</div>
+          <div class="print-sub">Space 519 · ${l.name} · Week of ${WEEK_LABEL}</div>
+          <div class="print-meta">Generated ${GENERATED_LABEL} · Prepared for owner review</div>
+        </div>
+        <div class="print-overview">
+          ${ov.map(o => `<div class="print-ov-stat"><div class="v">${o[0]}</div><div class="l">${o[1]}</div></div>`).join('')}
+        </div>
+        ${printLocBlock(l)}
+        <div class="print-foot-note">LY and full-year (month/year) figures are populated from imported historical data — Space 519's Shopify POS history begins Apr 1, 2026, so any earlier period comes from a one-time historical import rather than live Shopify data. This is a review mockup; all actions are simulated.</div>
+      </div>`;
+  }
+
+  function refreshReports() {
+    renderReport();
+    renderPrint();
+    renderPrintSingle(LOCATIONS.find(l => l.id === 'gc'), 'print-sheet-gc');
+    renderPrintSingle(LOCATIONS.find(l => l.id === 'oo'), 'print-sheet-oo');
+  }
 
   window.rerunReport = function() {
     const btn = $('#rerun-btn');
